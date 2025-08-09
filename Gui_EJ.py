@@ -4,7 +4,7 @@ from Zahlengenerieren import lottozahlen
 from Tippcheck import check_zahlen
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
-from PyQt5.QtGui import QIntValidator, QFont, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication
+from PyQt5.QtGui import QIntValidator, QFont, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
 from datumWidget import Datum
 from datetime import datetime
 import sys
@@ -489,6 +489,9 @@ class EurojackpotApp(QWidget):
         width = int(screen_size.width() * 0.85)
         height = int(screen_size.height() * 0.85)
         self.setWindowTitle("EurojackpotApp")
+        favicon_pfad = os.path.dirname(os.path.abspath(__file__))
+        favicon = os.path.join(favicon_pfad, "Backend", "Eurojackpot.ico")
+        self.setWindowIcon(QIcon(favicon))
         self.resize(width, height)
         self.setMinimumSize(1536, 864)
         self.setMaximumSize(3072, 1920)
