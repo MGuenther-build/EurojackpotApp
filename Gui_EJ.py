@@ -4,7 +4,7 @@ from Zahlengenerieren import lottozahlen
 from Tippcheck import check_zahlen
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
-from PyQt5.QtGui import QIntValidator, QFont, QPainter, QLinearGradient, QColor, QPixmap
+from PyQt5.QtGui import QIntValidator, QFont, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication
 from datumWidget import Datum
 from datetime import datetime
 import sys
@@ -54,8 +54,8 @@ class Zahlen_add(QWidget):
                 addfeld_layout.addWidget(spacer)
             addfelder = QLineEdit("")
             addfelder.setValidator(QIntValidator(1, 99))
-            addfelder.setFixedHeight(100)
-            addfelder.setFixedWidth(100)
+            addfelder.setMinimumSize(90, 90)
+            addfelder.setMaximumSize(120, 120)
             addfelder.setFont(QFont("Showcard Gothic", 36))
             addfelder.setAlignment(Qt.AlignCenter)
             addfelder.setStyleSheet("""
@@ -98,17 +98,21 @@ class Zahlen_add(QWidget):
                                 }"""
         
         button_add = QPushButton("Zahlen hinzufügen")
-        button_add.setFixedSize(600,60)
+        button_add.setMinimumSize(500,60)
+        button_add.setMaximumSize(700,80)
+        
         button_add.setStyleSheet(button_style_subsite3)
         button_add.clicked.connect(self.set_add)
         
         button_add_leeren = QPushButton("Felder leeren")
-        button_add_leeren.setFixedSize(400, 60)
+        button_add_leeren.setMinimumSize(300,60)
+        button_add_leeren.setMaximumSize(500,80)
         button_add_leeren.setStyleSheet(button_style_subsite3)
         button_add_leeren.clicked.connect(self.felder_leer)
 
         button_add_back = QPushButton("zurück zur Hauptseite")
-        button_add_back.setFixedSize(600,60)
+        button_add_back.setMinimumSize(500,60)
+        button_add_back.setMaximumSize(700,80)
         button_add_back.setStyleSheet(button_style_subsite3)
         button_add_back.clicked.connect(self.auto_leeren_bei_leave)
 
@@ -143,7 +147,7 @@ class Zahlen_add(QWidget):
         # Layout der Seite
         datum_layout = QVBoxLayout()
         datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 27, 17, 500)  # links, oben, rechts, unten
+        datum_layout.setContentsMargins(10, 26, 17, 150)
         layout.addLayout(datum_layout)
         layout.addWidget(self.ueberschrift)
         layout.addSpacing(150)
@@ -205,7 +209,7 @@ class Tipps_checken(QWidget):
     def __init__(self, back_callback):
         super().__init__()
         self.back_callback = back_callback
-        self.init_ui()                                                                                  # initialisiert die Benutzeroberfläche
+        self.init_ui()
     
     def init_ui(self):
         layout = QVBoxLayout()
@@ -215,8 +219,8 @@ class Tipps_checken(QWidget):
         self.ueberschrift.setAlignment(Qt.AlignCenter)
         
         self.tippeingabefeld = []
-        tippfelder_layout = QHBoxLayout()                                                               # für Anordnung der Tippfelder nebeneinander statt übereinander
-        tippfelder_layout.setSpacing(20)                                                                # Abstand der Felder zueinander
+        tippfelder_layout = QHBoxLayout()
+        tippfelder_layout.setSpacing(20)
         
         for i in range(7):
             if i == 5:
@@ -225,8 +229,8 @@ class Tipps_checken(QWidget):
                 tippfelder_layout.addWidget(spacer)
             tippfelder = QLineEdit("")
             tippfelder.setValidator(QIntValidator(1, 99))
-            tippfelder.setFixedHeight(100)
-            tippfelder.setFixedWidth(100)
+            tippfelder.setMinimumSize(90, 90)
+            tippfelder.setMaximumSize(120, 120)
             tippfelder.setFont(QFont("Showcard Gothic", 36))
             tippfelder.setAlignment(Qt.AlignCenter)
             tippfelder.setStyleSheet("""
@@ -270,17 +274,20 @@ class Tipps_checken(QWidget):
                                 }"""
         
         button_pruef = QPushButton("Tipp prüfen")
-        button_pruef.setFixedSize(600,60)
+        button_pruef.setMinimumSize(500, 60)
+        button_pruef.setMaximumSize(700, 80)
         button_pruef.setStyleSheet(button_style_subsite2)
         button_pruef.clicked.connect(self.get_pruef)
         
         button_pruef_leeren = QPushButton("Felder leeren")
-        button_pruef_leeren.setFixedSize(400, 60)
+        button_pruef_leeren.setMinimumSize(300, 60)
+        button_pruef_leeren.setMaximumSize(500, 80)
         button_pruef_leeren.setStyleSheet(button_style_subsite2)
         button_pruef_leeren.clicked.connect(self.felder_leer)
 
         button_pruef_back = QPushButton("zurück zur Hauptseite")
-        button_pruef_back.setFixedSize(600,60)
+        button_pruef_back.setMinimumSize(500, 60)
+        button_pruef_back.setMaximumSize(700, 80)
         button_pruef_back.setStyleSheet(button_style_subsite2)
         button_pruef_back.clicked.connect(self.auto_leeren_bei_leave)
 
@@ -315,7 +322,7 @@ class Tipps_checken(QWidget):
         # Layout der Seite
         datum_layout = QVBoxLayout()
         datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 27, 17, 500)  # links, oben, rechts, unten
+        datum_layout.setContentsMargins(17, 26, 17, 150)
         layout.addLayout(datum_layout)
         layout.addWidget(self.ueberschrift)
         layout.addSpacing(150)
@@ -340,7 +347,8 @@ class Tipps_checken(QWidget):
         eingabe = " ".join(feld.text() for feld in self.tippeingabefeld)
         ergebnis = check_zahlen(eingabe)
         dialog = QDialog(self)
-        dialog.setFixedSize(800, 300)
+        dialog.setMinimumSize(700, 260)
+        dialog.setMaximumSize(1000, 375)
         dialog.setWindowTitle("Prüfergebnis")
         dialog.setStyleSheet("background-color: black;")
         layout = QVBoxLayout(dialog)
@@ -402,14 +410,16 @@ class Glueckszahlen(QWidget):
                                 }"""
         
         button_gluck1 = QPushButton("Glückszahlen generieren")
-        button_gluck1.clicked.connect(self.zahlen_generieren)
-        button_gluck1.setFixedSize(800,60)
+        button_gluck1.setMinimumSize(500, 60)
+        button_gluck1.setMaximumSize(700, 80)
         button_gluck1.setStyleSheet(button_style_subsite1)
+        button_gluck1.clicked.connect(self.zahlen_generieren)
         
         button_gluck1_back = QPushButton("zurück zur Hauptseite")
-        button_gluck1_back.clicked.connect(self.back_callback)
-        button_gluck1_back.setFixedSize(800,60)
+        button_gluck1_back.setMinimumSize(500, 60)
+        button_gluck1_back.setMaximumSize(700, 80)
         button_gluck1_back.setStyleSheet(button_style_subsite1)
+        button_gluck1_back.clicked.connect(self.back_callback)
         button_gluck1_back.clicked.connect(self.auto_leeren_bei_leave)
 
         # Button Eindrückeffekt
@@ -443,7 +453,7 @@ class Glueckszahlen(QWidget):
         datum_layout = QVBoxLayout()
         datum_layout.addSpacing(200)
         datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 27, 17, 500)  # links, oben, rechts, unten
+        datum_layout.setContentsMargins(17, 27, 17, 500)
         layout.addSpacing(60)
         layout.addLayout(datum_layout)
         layout.addWidget(self.ueberschrift)
@@ -474,11 +484,16 @@ class Glueckszahlen(QWidget):
 class EurojackpotApp(QWidget):
     def __init__(self):
         super().__init__()
+        aufloesung = QGuiApplication.primaryScreen()
+        screen_size = aufloesung.availableGeometry()
+        width = int(screen_size.width() * 0.85)
+        height = int(screen_size.height() * 0.85)
         self.setWindowTitle("EurojackpotApp")
-        self.resize(2000, 1300)
-        self.setMaximumSize(3840, 2400)
-        self.setMinimumSize(1920, 1080)
-        self.stack = QStackedLayout()                                                               # stack bedeutet, dass man mehrere Seiten (Widgets) übereinander legen kann
+        self.resize(width, height)
+        self.setMinimumSize(1536, 864)
+        self.setMaximumSize(3072, 1920)
+        self.move(screen_size.center().x() - self.width() // 2, screen_size.center().y() - self.height() // 2)
+        self.stack = QStackedLayout()
         self.main = QWidget()
         
         # Datum
@@ -520,17 +535,20 @@ class EurojackpotApp(QWidget):
                                     }"""
 
         button1 = QPushButton("Glückszahlen generieren")
-        button1.setFixedSize(500,60)
+        button1.setMinimumSize(400, 60)
+        button1.setMaximumSize(600, 80)
         button1.setStyleSheet(button_style_hauptseite)
         button1.clicked.connect(self.show_glueckszahlen)
 
         button2 = QPushButton("Tippcheck")
-        button2.setFixedSize(500,60)
+        button2.setMinimumSize(400, 60)
+        button2.setMaximumSize(600, 80)
         button2.setStyleSheet(button_style_hauptseite)
         button2.clicked.connect(self.show_tippeingabefeld)
 
         button3 = QPushButton("Jackpotzahlen hinzufügen")
-        button3.setFixedSize(500,60)
+        button3.setMinimumSize(400, 60)
+        button3.setMaximumSize(600, 80)
         button3.setStyleSheet(button_style_hauptseite)
         button3.clicked.connect(self.show_addfeld)
         
@@ -562,7 +580,7 @@ class EurojackpotApp(QWidget):
         datum_layout = QVBoxLayout()
         datum_layout.addStretch()
         datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 30, 17, 500)  # links, oben, rechts, unten
+        datum_layout.setContentsMargins(17, 30, 17, 500)
         main_layout = QVBoxLayout()
         main_layout.addSpacing(24)
         main_layout.addLayout(datum_layout)
@@ -586,16 +604,13 @@ class EurojackpotApp(QWidget):
 
     def show_addfeld(self):
         self.stack.setCurrentWidget(self.addfeld)
-    def show_main(self):
-        self.stack.setCurrentWidget(self.main)
     
     def show_tippeingabefeld(self):
         self.stack.setCurrentWidget(self.tippeingabefeld)
-    def show_main(self):
-        self.stack.setCurrentWidget(self.main)
 
     def show_glueckszahlen(self):
-        self.stack.setCurrentWidget(self.glueckszahlen)                                             # mit setCurrentWidget wechselt man zwischen den Seiten
+        self.stack.setCurrentWidget(self.glueckszahlen)
+
     def show_main(self):
         self.stack.setCurrentWidget(self.main)
 
