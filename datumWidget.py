@@ -13,7 +13,7 @@ class Datum(QWidget):
         
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setColor(QColor("#F7F7F7"))
-        shadow.setOffset(0, 2)  # Nur nach unten, leichter Schatten
+        shadow.setOffset(0, 2)
         shadow.setBlurRadius(4)
         self.datum.setGraphicsEffect(shadow)
         

@@ -4,7 +4,7 @@ from Zahlengenerieren import lottozahlen
 from Tippcheck import check_zahlen
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
-from PyQt5.QtGui import QIntValidator, QFont, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
+from PyQt5.QtGui import QIntValidator, QFont, QFontDatabase, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
 from datumWidget import Datum
 from datetime import datetime
 import sys
@@ -655,9 +655,26 @@ def fade_out_Loading_Screen(widget, duration=900, wenn_fertig=None):
     animation.finished.connect(lambda: (widget.close(), wenn_fertig and wenn_fertig()))
 
 
+def font_specs():
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    font_path = os.path.join(base_path, "Backend", "Showcard Gothic.ttf")
+    fontID = QFontDatabase.addApplicationFont(font_path)
+    font_group = QFontDatabase.applicationFontFamilies(fontID)
+    if font_group:
+        return QFont(font_group[0], 14)
+    else:
+        return QFont()
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    fenster = EurojackpotApp()
+    showcard_font = font_specs()
+    fenster.setFont(showcard_font)
     if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
     else:
@@ -677,7 +694,6 @@ if __name__ == "__main__":
     except Exception as x:
         logging.error(f"[Intro wurde übersprungen] - Grund: {x}")
         show_intro = False
-    fenster = EurojackpotApp()
     if show_intro:
         QTimer.singleShot(1000, lambda: fade_out_Loading_Screen(intro, wenn_fertig=fenster.show))
     else:
