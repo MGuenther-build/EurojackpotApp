@@ -13,6 +13,20 @@ import logging
 
 
 
+# Hilfsklasse für klickbare Freiflächen in der App
+class FreifeldKlickbar(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.setStyleSheet("background-color: transparent;")
+
+    def mousePressEvent(self, event):
+        self.setFocus()
+        event.accept()
+
+
+
 # Lottozahlen hinzufügen
 class Zahlen_add(QWidget):
     def __init__(self, back_callback):
@@ -583,16 +597,18 @@ class EurojackpotApp(QWidget):
         datum_layout = QVBoxLayout()
         datum_layout.addStretch()
         datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 30, 17, 500)
+        datum_layout.setContentsMargins(17, 28, 17, 500)
         main_layout = QVBoxLayout()
-        main_layout.addSpacing(24)
+        main_layout.addSpacing(25)
         main_layout.addLayout(datum_layout)
         main_layout.addWidget(title)
         main_layout.addSpacing(500)
         main_layout.addLayout(button_layout)
-        main_layout.addSpacerItem(QSpacerItem(0,100))
+        main_layout.addSpacerItem(QSpacerItem(0,90))
 
         # Layout in Fenster anzeigen
+        fokus_flaeche = FreifeldKlickbar()
+        main_layout.addWidget(fokus_flaeche)
         self.main.setLayout(main_layout)
         self.addfeld = Zahlen_add(back_callback=self.show_main)
         self.tippeingabefeld = Tipps_checken(back_callback=self.show_main)
@@ -616,7 +632,7 @@ class EurojackpotApp(QWidget):
 
     def show_main(self):
         self.stack.setCurrentWidget(self.main)
-
+         
          
     # Hauptseite (Hintergrundbild)
     def paintEvent(self, event):
