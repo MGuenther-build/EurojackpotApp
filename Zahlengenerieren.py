@@ -21,16 +21,19 @@ def lottozahlen():
                 bereits_gezogen.append((hauptzahlen, zusatzzahlen))
     except sqlite3.Error as e:
         return f"❌ Datenbankfehler: {e}"
-
-    for _ in range(1000):
+    
+    
+    attempt = 0
+    max_attempt = 140000000
+    while attempt < max_attempt:
+        attempt += 1
         wahl1 = tuple(sorted(random.sample([zahl for zahl in range(1,51)], k=5)))
         wahl2 = tuple(sorted(random.sample([zahl for zahl in range(1,13)], k=2)))
         gezogen = wahl1, wahl2
-        if gezogen in bereits_gezogen:
-            continue
-        hauptzahlen = " - ".join(map(str, gezogen[0]))
-        zusatzzahlen = " - ".join(map(str, gezogen[1]))
-        return (f"{hauptzahlen}        {zusatzzahlen}")
+        
+        if gezogen not in bereits_gezogen:
+            hauptzahlen = " - ".join(map(str, gezogen[0]))
+            zusatzzahlen = " - ".join(map(str, gezogen[1]))
+            return f"{hauptzahlen}        {zusatzzahlen}"
     
-    return "⚠️ Alle Zahlenkombinationen, die es gibt, wurden bereits gezogen!"
-
+    return "⚠️ Alle möglichen Zahlenkombinationen wurden bereits gezogen!"
