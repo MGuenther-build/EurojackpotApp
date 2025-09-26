@@ -24,40 +24,31 @@
 # Nutzung
 
 ## Zahlen eintragen
-
 Jede gezogene Eurojackpot-Zahl kann direkt in die Datenbank eingetragen werden. Die App zeigt dir an, wann die letzte Zahl eingetragen wurde.
 
 ## Tipps vergleichen
-
 Du kannst deine eigenen Tipps eingeben und die App prüft, ob diese bereits gezogen wurden. Bei Übereinstimmung erhältst du eine entsprechende Benachrichtigung.
 
 ## Glückszahlen generieren
-
 Die App kann neue Glückszahlen generieren und dabei bereits gezogene Zahlen ausschließen.
 
 ## Fehlerüberprüfung
-
 Deine eingegebenen Tipps werden auf folgende Kriterien überprüft:
-
 * Gültiger Zahlenbereich
 * Keine doppelten Zahlen
 * Korrekte Unterscheidung zwischen Hauptzahlen und Zusatzzahlen
 
 ## Schließen der App
-
 Bevor du die App schließt, wirst du gefragt, ob du dies wirklich tun möchtest.
 
 # Technologie
-
 * Python: Die Programmiersprache für die Implementierung der App.
 * Qt: Für die grafische Benutzeroberfläche.
 * SQLite: Zur Speicherung der gezogenen Eurojackpot-Zahlen.
 * PyQt: Für die Integration von Qt in Python.
 
 # Lizenz
-
 Diese App hat keine Lizenz. Sie kann jeder herunterladen oder klonen und verändern, wie er will! Ich bin dann allerdings nicht mehr Teil solcher Projekte.
 
-# Autoren
-
+# Autor
 Martin Günther
