@@ -48,7 +48,7 @@ Bevor Sie die App schließen, werden Sie gefragt, ob Sie dies wirklich tun möch
 * PyQt: Für die Integration von Qt in Python.
 
 # Lizenz
-Diese App hat keine Lizenz. Sie kann von Jedem herunterladen oder geklont werden und dann natürlich auch verändert/erweitert werden! Ich bin dann allerdings nicht mehr Teil solcher Projekte.
+Diese App unterliegt der MIT-Lizenz. Sie kann von Jedem herunterladen oder geklont werden und dann natürlich auch verändert/erweitert werden! Ich bin dann allerdings nicht mehr Teil solcher Projekte.
 
 # Autor
 Martin Günther
