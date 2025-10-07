@@ -3,7 +3,6 @@
 **EurojackpotApp** ist eine Python-basierte Anwendung, die es Ihnen ermöglicht gezogenen Eurojackpot-Zahlen zu verwalten, Tipps zu vergleichen und neue Glückszahlen zu generieren. Die App nutzt Qt für die grafische Benutzeroberfläche und SQLite für die Speicherung der gezogenen Zahlen.
 
 ## Features
-
 - **Datenbank der gezogenen Zahlen**: Alle jemals gezogenen Eurojackpot-Zahlen werden in einer SQLite-Datenbank gespeichert.
 - **Vergleich deiner Tipps**: Sie können eigene Tipps mit den bereits gezogenen Zahlen vergleichen. Eine Benachrichtigung wird angezeigt, wenn Ihr Tipp bereits gezogen wurde.
 - **Fehlerüberprüfung**: Ihre Tipps werden auf Fehler überprüft, z.B. ob die Zahlen im gültigen Bereich liegen und ob es doppelte Zahlen gibt. Es wird zwischen Hauptzahlen und Zusatzzahlen unterschieden.
