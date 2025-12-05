@@ -17,7 +17,7 @@
 
 ## Start der App
    ``` bash
-   Gui_EJ.py
+   main.py
    ```
 
 # Nutzung
