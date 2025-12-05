@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
 from PyQt5.QtGui import QIntValidator, QFont, QFontDatabase, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
 from utils.dateWidget import Datum
+from utils.timestampWidget import get_Timestamp, add_Timestamp
 from datetime import datetime
 import sys
 import os
@@ -13,7 +14,6 @@ import logging
 
 
 
-# Hilfsklasse für klickbare Freiflächen in der App
 class FreifeldKlickbar(QWidget):
     def __init__(self):
         super().__init__()
@@ -27,7 +27,6 @@ class FreifeldKlickbar(QWidget):
 
 
 
-# Lottozahlen hinzufügen
 class Zahlen_add(QWidget):
     def __init__(self, back_callback):
         super().__init__()
@@ -49,13 +48,13 @@ class Zahlen_add(QWidget):
             pfad = sys._MEIPASS
         else:
             pfad = os.path.dirname(os.path.abspath(__file__))
-        txt_pfad = os.path.join(pfad, "backend", "add_Datumstempel.txt")
-        try:
-            with open(txt_pfad, "r", encoding="utf-8") as y:
-                zeitstempel = y.read().strip()
-                self.updated.setText(f"🕒 Zuletzt aktualisiert: {zeitstempel} Uhr")
-        except FileNotFoundError:
-            pass
+
+        db_pfad = os.path.join(pfad, "backend", "Jackpot_DB.db")        
+        zeitstempel = get_Timestamp(db_pfad)
+        if zeitstempel:
+            self.updated.setText(f"🕒 Zuletzt aktualisiert: {zeitstempel} Uhr")
+        else:
+            self.updated.setText(f"🕒 Zuletzt aktualisiert: ---")
 
         self.addfeld = []
         addfeld_layout = QHBoxLayout()
@@ -86,8 +85,7 @@ class Zahlen_add(QWidget):
                                         """)
             addfeld_layout.addWidget(addfelder)
             self.addfeld.append(addfelder)
-        
-        # Button Designs
+
         button_style_subsite3 = """
                                 QPushButton {
                                     font-size: 19px;
@@ -130,7 +128,6 @@ class Zahlen_add(QWidget):
         button_add_back.setStyleSheet(button_style_subsite3)
         button_add_back.clicked.connect(self.auto_leeren_bei_leave)
 
-        # Button Eindrückeffekt
         def set_shadow(button):
             shadow = QGraphicsDropShadowEffect()
             shadow.setBlurRadius(15)
@@ -148,13 +145,11 @@ class Zahlen_add(QWidget):
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
     
-        # horizontale Anordnung der Buttons
         buttonadd_layout = QHBoxLayout()
         buttonadd_layout.addWidget(button_add)
         buttonadd_layout.addWidget(button_add_leeren)
         buttonadd_layout.addWidget(button_add_back)
 
-        # Datum
         self.datumWidget = Datum()
         self.datumWidget.setFixedHeight(200)
         
@@ -173,10 +168,7 @@ class Zahlen_add(QWidget):
         layout.addSpacing(600)
         layout.addLayout(buttonadd_layout)
         layout.addSpacerItem(QSpacerItem(0,100))
-
-        # Layout auf Fenster anwenden
         self.setLayout(layout)
-
 
     def felder_leer(self):
         for feld in self.addfeld:
@@ -207,18 +199,15 @@ class Zahlen_add(QWidget):
             pfad = sys._MEIPASS
         else:
             pfad = os.path.dirname(os.path.abspath(__file__))
-        txt_pfad = os.path.join(pfad, "backend", "add_Datumstempel.txt")
+        
+        db_pfad = os.path.join(pfad, "backend", "Jackpot_DB.db")
         if ergebnis.startswith("✅"):
             zeit = datetime.now().strftime("%d.%m.%Y um %H:%M")
             self.updated.setText(f"🕒 Zuletzt aktualisiert: {zeit} Uhr")
-            with open(txt_pfad, "w", encoding="utf-8") as x:
-                x.write(zeit)
+            add_Timestamp(db_pfad, zeit)
 
 
 
-
-
-# Tippcheck
 class Tipps_checken(QWidget):
     def __init__(self, back_callback):
         super().__init__()
@@ -262,8 +251,6 @@ class Tipps_checken(QWidget):
             tippfelder_layout.addWidget(tippfelder)
             self.tippeingabefeld.append(tippfelder)
 
-    
-        # Button Designs
         button_style_subsite2 = """
                                 QPushButton {
                                     font-size: 19px;
@@ -305,7 +292,6 @@ class Tipps_checken(QWidget):
         button_pruef_back.setStyleSheet(button_style_subsite2)
         button_pruef_back.clicked.connect(self.auto_leeren_bei_leave)
 
-        # Button Eindrückeffekt
         def set_shadow(button):
             shadow = QGraphicsDropShadowEffect()
             shadow.setBlurRadius(15)
@@ -323,13 +309,11 @@ class Tipps_checken(QWidget):
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
     
-        # horizontale Anordnung der Buttons
         buttonpruef_layout = QHBoxLayout()
         buttonpruef_layout.addWidget(button_pruef)
         buttonpruef_layout.addWidget(button_pruef_leeren)
         buttonpruef_layout.addWidget(button_pruef_back)
 
-        # Datum
         self.datumWidget = Datum()
         self.datumWidget.setFixedHeight(200)
         
@@ -344,9 +328,7 @@ class Tipps_checken(QWidget):
         layout.addSpacing(600)
         layout.addLayout(buttonpruef_layout)
         layout.addSpacerItem(QSpacerItem(0,100))
-    
         self.setLayout(layout)
-
 
     def felder_leer(self):
         for feld in self.tippeingabefeld:
@@ -376,9 +358,6 @@ class Tipps_checken(QWidget):
 
 
 
-
-
-# Glückzahlen generieren
 class Glueckszahlen(QWidget):
     def __init__(self, back_callback):
         super().__init__()
@@ -399,7 +378,6 @@ class Glueckszahlen(QWidget):
         shadow_glueck.setColor(QColor("#FEDFA052"))
         self.glueckszahlen.setGraphicsEffect(shadow_glueck)
         
-        # Button Designs
         button_style_subsite1 = """
                                 QPushButton {
                                     font-size: 19px;
@@ -436,7 +414,6 @@ class Glueckszahlen(QWidget):
         button_gluck1_back.clicked.connect(self.back_callback)
         button_gluck1_back.clicked.connect(self.auto_leeren_bei_leave)
 
-        # Button Eindrückeffekt
         def set_shadow(button):
             shadow = QGraphicsDropShadowEffect()
             shadow.setBlurRadius(15)
@@ -453,13 +430,11 @@ class Glueckszahlen(QWidget):
             set_shadow(btn)
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
-        
-        # horizontale Anordnung der Buttons
+
         buttonglueck_layout = QHBoxLayout()
         buttonglueck_layout.addWidget(button_gluck1)
         buttonglueck_layout.addWidget(button_gluck1_back)
 
-        # Datum
         self.datumWidget = Datum()
         self.datumWidget.setFixedHeight(200)
         
@@ -476,12 +451,8 @@ class Glueckszahlen(QWidget):
         layout.addSpacing(400)
         layout.addLayout(buttonglueck_layout)
         layout.addSpacerItem(QSpacerItem(0,100))
-        
-        # Layout auf Fenster anwenden
         self.setLayout(layout)
 
-
-    # leert die Seite nach Verlassen
     def auto_leeren_bei_leave(self):
         self.glueckszahlen.setText("")
         self.back_callback()
@@ -492,9 +463,6 @@ class Glueckszahlen(QWidget):
 
 
 
-
-
-# Hauptklasse
 class EurojackpotApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -513,11 +481,9 @@ class EurojackpotApp(QWidget):
         self.stack = QStackedLayout()
         self.main = QWidget()
         
-        # Datum
         self.datumWidget = Datum()
         self.datumWidget.setFixedHeight(200)
 
-        # Seite (Hauptschrift)
         title = QLabel("Eurojackpot")
         title.setFont(QFont("Showcard Gothic", 72))
         title.setAlignment(Qt.AlignCenter)
@@ -527,7 +493,6 @@ class EurojackpotApp(QWidget):
         shadow.setColor(QColor("#FEDFA052"))
         title.setGraphicsEffect(shadow)
 
-        # Button Designs
         button_style_hauptseite = """
                                    QPushButton {
                                        font-size: 19px;
@@ -569,7 +534,6 @@ class EurojackpotApp(QWidget):
         button3.setStyleSheet(button_style_hauptseite)
         button3.clicked.connect(self.show_addfeld)
         
-        # Button Eindrückeffekt
         def set_shadow(button):
             shadow = QGraphicsDropShadowEffect()
             shadow.setBlurRadius(15)
@@ -587,7 +551,6 @@ class EurojackpotApp(QWidget):
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
 
-        # Einbindung Buttons nebeneinander
         button_layout = QHBoxLayout()
         button_layout.addWidget(button1)
         button_layout.addWidget(button2)
@@ -606,7 +569,6 @@ class EurojackpotApp(QWidget):
         main_layout.addLayout(button_layout)
         main_layout.addSpacerItem(QSpacerItem(0,90))
 
-        # Layout in Fenster anzeigen
         fokus_flaeche = FreifeldKlickbar()
         main_layout.addWidget(fokus_flaeche)
         self.main.setLayout(main_layout)
@@ -620,7 +582,6 @@ class EurojackpotApp(QWidget):
         self.stack.addWidget(self.glueckszahlen)
         self.setLayout(self.stack)
 
-
     def show_addfeld(self):
         self.stack.setCurrentWidget(self.addfeld)
     
@@ -633,15 +594,12 @@ class EurojackpotApp(QWidget):
     def show_main(self):
         self.stack.setCurrentWidget(self.main)
          
-         
-    # Hauptseite (Hintergrundbild)
     def paintEvent(self, event):
         painter = QPainter(self)
         gradient = QLinearGradient(0, 0, 0, self.height())
         gradient.setColorAt(0, QColor("#D0ECF7"))
         gradient.setColorAt(1, QColor("#F7C562"))
         painter.fillRect(self.rect(), gradient)
-    
     
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -656,7 +614,6 @@ class EurojackpotApp(QWidget):
         else:
             event.ignore()
 
-
 def fade_out_Loading_Screen(widget, duration=900, wenn_fertig=None):
     if getattr(widget, "_fade_animation", None) is not None:
         return
@@ -669,7 +626,6 @@ def fade_out_Loading_Screen(widget, duration=900, wenn_fertig=None):
     animation.start()
     widget._fade_animation = animation
     animation.finished.connect(lambda: (widget.close(), wenn_fertig and wenn_fertig()))
-
 
 def font_specs():
     if getattr(sys, 'frozen', False):
@@ -714,7 +670,5 @@ if __name__ == "__main__":
         QTimer.singleShot(1000, lambda: fade_out_Loading_Screen(intro, wenn_fertig=fenster.show))
     else:
         fenster.show()
-    
-    
     
     sys.exit(app.exec_())

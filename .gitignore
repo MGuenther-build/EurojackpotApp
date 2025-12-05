@@ -1,2 +1,7 @@
 __pycache__/
 desktop.ini
+*.log
+*.txt
+.vscode/*
+*.env
+logs
