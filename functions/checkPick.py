@@ -1,7 +1,7 @@
 
 import sqlite3
 import re
-from Backend.dbPfad import db_pfad
+from backend.dbPath import db_pfad
 
 
 def check_zahlen(mein_tipp):

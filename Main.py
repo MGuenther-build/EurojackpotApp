@@ -1,11 +1,11 @@
 
-from Zahlen_hinzu import zahlen_eintragen
-from Zahlengenerieren import lottozahlen
-from Tippcheck import check_zahlen
+from functions.saveDraw import zahlen_eintragen
+from functions.generatePick import lottozahlen
+from functions.checkPick import check_zahlen
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
 from PyQt5.QtGui import QIntValidator, QFont, QFontDatabase, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
-from datumWidget import Datum
+from utils.dateWidget import Datum
 from datetime import datetime
 import sys
 import os
@@ -504,7 +504,7 @@ class EurojackpotApp(QWidget):
         height = int(screen_size.height() * 0.85)
         self.setWindowTitle("EurojackpotApp")
         favicon_pfad = os.path.dirname(os.path.abspath(__file__))
-        favicon = os.path.join(favicon_pfad, "Backend", "Eurojackpot.ico")
+        favicon = os.path.join(favicon_pfad, "backend", "images", "Eurojackpot.ico")
         self.setWindowIcon(QIcon(favicon))
         self.resize(width, height)
         self.setMinimumSize(1536, 864)
@@ -676,7 +676,7 @@ def font_specs():
         base_path = sys._MEIPASS
     else:
         base_path = os.path.dirname(os.path.abspath(__file__))
-    font_path = os.path.join(base_path, "Backend", "Showcard Gothic.ttf")
+    font_path = os.path.join(base_path, "backend", "images", "Showcard Gothic.ttf")
     fontID = QFontDatabase.addApplicationFont(font_path)
     font_group = QFontDatabase.applicationFontFamilies(fontID)
     if font_group:
@@ -695,7 +695,7 @@ if __name__ == "__main__":
         base_path = sys._MEIPASS
     else:
         base_path = os.path.dirname(os.path.abspath(__file__))
-    intro_path = os.path.join(base_path, "Backend", "Loading_Screen.webp")
+    intro_path = os.path.join(base_path, "backend", "images", "Loading_Screen.webp")
     try:
         pixmap = QPixmap(intro_path)
         if pixmap.isNull():

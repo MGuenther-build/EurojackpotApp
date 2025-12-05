@@ -1,7 +1,7 @@
 
 import sqlite3
 import random
-from Backend.dbPfad import db_pfad
+from backend.dbPath import db_pfad
 
 
 def lottozahlen():
