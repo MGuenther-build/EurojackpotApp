@@ -46,6 +46,9 @@ Bevor Sie die App schließen, werden Sie gefragt, ob Sie dies wirklich tun möch
 * SQLite: Zur Speicherung der gezogenen Eurojackpot-Zahlen.
 * PyQt: Für die Integration von Qt in Python.
 
+# Responsivität
+Dieses Programm ist auf Desktop-PCs responsiv, es ist aber nicht für die Handynutzung geeignet.
+
 # Lizenz
 Diese App unterliegt der MIT-Lizenz. Sie kann von Jedem herunterladen oder geklont werden und dann natürlich auch verändert/erweitert werden! Ich bin dann allerdings nicht mehr Teil solcher Projekte.
 
