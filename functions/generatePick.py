@@ -20,7 +20,7 @@ def lottozahlen():
                 zusatzzahlen = tuple(sorted(map(int, zeile[5:])))
                 bereits_gezogen.append((hauptzahlen, zusatzzahlen))
     except sqlite3.Error as e:
-        return f"❌ Datenbankfehler: {e}"
+        return str(e)
     
     
     attempt = 0

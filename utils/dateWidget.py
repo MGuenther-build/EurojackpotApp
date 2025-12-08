@@ -8,7 +8,7 @@ class Datum(QWidget):
         super().__init__(parent)
         
         self.datum = QLabel()
-        self.datum.setStyleSheet("color: black; font-size: 32px; font-family: Garamond")
+        self.datum.setStyleSheet("color: black; font-size: 14pt; font-family: Garamond")
         self.datum.setAlignment(Qt.AlignRight | Qt.AlignTop)
         
         shadow = QGraphicsDropShadowEffect(self)

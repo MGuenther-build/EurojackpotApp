@@ -3,7 +3,7 @@ from functions.saveDraw import zahlen_eintragen
 from functions.generatePick import lottozahlen
 from functions.checkPick import check_zahlen
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
-from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QSizePolicy, QDialog, QMessageBox, QSplashScreen, QPushButton, QLabel, QDialog, QVBoxLayout, QHBoxLayout, QSpacerItem, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QStackedLayout, QLineEdit
 from PyQt5.QtGui import QIntValidator, QFont, QFontDatabase, QPainter, QLinearGradient, QColor, QPixmap, QGuiApplication, QIcon
 from utils.dateWidget import Datum
 from utils.timestampWidget import get_Timestamp, add_Timestamp
@@ -14,19 +14,6 @@ import logging
 
 
 
-class FreifeldKlickbar(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setFocusPolicy(Qt.StrongFocus)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.setStyleSheet("background-color: transparent;")
-
-    def mousePressEvent(self, event):
-        self.setFocus()
-        event.accept()
-
-
-
 class Zahlen_add(QWidget):
     def __init__(self, back_callback):
         super().__init__()
@@ -34,21 +21,28 @@ class Zahlen_add(QWidget):
         self.init_ui()
     
     def init_ui(self):
-        layout = QVBoxLayout()
+        grid = QGridLayout(self)
+        grid.setRowStretch(0, 2)
+        grid.setRowStretch(1, 6)
+        grid.setRowStretch(2, 3)
         
+        self.datumWidget = Datum()
+        grid.addWidget(self.datumWidget, 0, 0, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.datumWidget.setContentsMargins(0, 0, 10, 0)
+        
+        layout = QVBoxLayout()
         self.ueberschrift = QLabel("Jackpotzahlen zur Datenbank hinzufügen:")
         self.ueberschrift.setFont(QFont("Showcard Gothic", 30))
         self.ueberschrift.setAlignment(Qt.AlignCenter)
-
         self.updated = QLabel(f"Zuletzt aktualisiert am: ---")
         self.updated.setFont(QFont("Tahoma", 10))
         self.updated.setAlignment(Qt.AlignLeft)
         self.updated.setStyleSheet("color: #000000")
+
         if getattr(sys, 'frozen', False):
             pfad = sys._MEIPASS
         else:
             pfad = os.path.dirname(os.path.abspath(__file__))
-
         db_pfad = os.path.join(pfad, "backend", "Jackpot_DB.db")        
         zeitstempel = get_Timestamp(db_pfad)
         if zeitstempel:
@@ -57,18 +51,15 @@ class Zahlen_add(QWidget):
             self.updated.setText(f"🕒 Zuletzt aktualisiert: ---")
 
         self.addfeld = []
-        addfeld_layout = QHBoxLayout()
-        addfeld_layout.setSpacing(20)
+        self.addfeld_layout = QHBoxLayout()
         
         for i in range(7):
             if i == 5:
-                spacer = QWidget()
-                spacer.setFixedWidth(10)
-                addfeld_layout.addWidget(spacer)
+                self.spacer = QWidget()
+                self.addfeld_layout.addWidget(self.spacer)
+                
             addfelder = QLineEdit("")
             addfelder.setValidator(QIntValidator(1, 99))
-            addfelder.setMinimumSize(90, 90)
-            addfelder.setMaximumSize(120, 120)
             addfelder.setFont(QFont("Showcard Gothic", 36))
             addfelder.setAlignment(Qt.AlignCenter)
             addfelder.setStyleSheet("""
@@ -83,12 +74,19 @@ class Zahlen_add(QWidget):
                                         background-color: #262626;
                                         }
                                         """)
-            addfeld_layout.addWidget(addfelder)
+            self.addfeld_layout.addWidget(addfelder)
             self.addfeld.append(addfelder)
+        
+        layout.addWidget(self.ueberschrift)
+        layout.addSpacing(40)
+        layout.addLayout(self.addfeld_layout)
+        layout.addSpacing(8)
+        layout.addWidget(self.updated)
+        grid.addLayout(layout, 1, 0, alignment=Qt.AlignCenter)
 
         button_style_subsite3 = """
                                 QPushButton {
-                                    font-size: 19px;
+                                    font-size: 10pt;
                                     font-family: Tahoma;
                                     background-color: #000000;
                                     color: #FEDFA0;
@@ -110,21 +108,14 @@ class Zahlen_add(QWidget):
                                 }"""
         
         button_add = QPushButton("Zahlen hinzufügen")
-        button_add.setMinimumSize(500,60)
-        button_add.setMaximumSize(700,80)
-        
         button_add.setStyleSheet(button_style_subsite3)
         button_add.clicked.connect(self.set_add)
         
         button_add_leeren = QPushButton("Felder leeren")
-        button_add_leeren.setMinimumSize(300,60)
-        button_add_leeren.setMaximumSize(500,80)
         button_add_leeren.setStyleSheet(button_style_subsite3)
         button_add_leeren.clicked.connect(self.felder_leer)
 
         button_add_back = QPushButton("zurück zur Hauptseite")
-        button_add_back.setMinimumSize(500,60)
-        button_add_back.setMaximumSize(700,80)
         button_add_back.setStyleSheet(button_style_subsite3)
         button_add_back.clicked.connect(self.auto_leeren_bei_leave)
 
@@ -138,37 +129,40 @@ class Zahlen_add(QWidget):
         def remove_shadow(button):
             button.setGraphicsEffect(None)
 
-        buttons = [button_add, button_add_back, button_add_leeren]
+        self.buttons = [button_add, button_add_back, button_add_leeren]
 
-        for btn in buttons:
+        for btn in self.buttons:
             set_shadow(btn)
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
     
         buttonadd_layout = QHBoxLayout()
         buttonadd_layout.addWidget(button_add)
         buttonadd_layout.addWidget(button_add_leeren)
         buttonadd_layout.addWidget(button_add_back)
-
-        self.datumWidget = Datum()
-        self.datumWidget.setFixedHeight(200)
+        buttonadd_layout.setSpacing(int(self.width() * 0.03))
         
-        # Layout der Seite
-        datum_layout = QVBoxLayout()
-        datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(10, 26, 17, 150)
-        layout.addLayout(datum_layout)
-        layout.addWidget(self.ueberschrift)
-        layout.addSpacing(150)
-        layout.addLayout(addfeld_layout)
-        updated_layout = QHBoxLayout()
-        updated_layout.addWidget(self.updated)
-        updated_layout.setContentsMargins(130,30,0,0)
-        layout.addLayout(updated_layout)
-        layout.addSpacing(600)
-        layout.addLayout(buttonadd_layout)
-        layout.addSpacerItem(QSpacerItem(0,100))
-        self.setLayout(layout)
+        footer = QWidget()
+        footer_layout = QVBoxLayout(footer)
+        footer_layout.addStretch(1)
+        footer_layout.addLayout(buttonadd_layout)
+        footer_layout.setContentsMargins(0, 0, 0, 50)
+        footer.setMinimumHeight(int(self.height() * 0.08))
+        grid.addWidget(footer, 2, 0, alignment=Qt.AlignBottom)
+    
+    def resizeEvent(self, event):
+        h = self.height()
+        w = self.width()
+        for btn in self.buttons:
+            btn.setFixedHeight(int(h * 0.045))
+        self.addfeld_layout.setSpacing(int(w * 0.035))
+        if hasattr(self, "spacer"):
+            self.spacer.setFixedWidth(int(w * 0.05))
+        for feld in self.addfeld:
+            feld.setFixedWidth(int(w * 0.07))
+            feld.setFixedHeight(int(h * 0.08))
+        super().resizeEvent(event)
 
     def felder_leer(self):
         for feld in self.addfeld:
@@ -178,6 +172,11 @@ class Zahlen_add(QWidget):
         for feld in self.addfeld:
             feld.clear()
         self.back_callback()
+    
+    def mousePressEvent(self, event):
+        if QApplication.focusWidget():
+            QApplication.focusWidget().clearFocus()
+        event.accept()
     
     def set_add(self):
         eingabe = [feld.text().strip() for feld in self.addfeld]
@@ -215,25 +214,28 @@ class Tipps_checken(QWidget):
         self.init_ui()
     
     def init_ui(self):
+        grid = QGridLayout(self)
+        grid.setRowStretch(0, 2)
+        grid.setRowStretch(1, 6)
+        grid.setRowStretch(2, 3)
+        
+        self.datumWidget = Datum()
+        grid.addWidget(self.datumWidget, 0, 0, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.datumWidget.setContentsMargins(0, 0, 10, 0)
+        
         layout = QVBoxLayout()
-
         self.ueberschrift = QLabel("Gebe deinen Tipp ein:")
         self.ueberschrift.setFont(QFont("Showcard Gothic", 30))
         self.ueberschrift.setAlignment(Qt.AlignCenter)
-        
         self.tippeingabefeld = []
-        tippfelder_layout = QHBoxLayout()
-        tippfelder_layout.setSpacing(20)
+        self.tippfelder_layout = QHBoxLayout()
         
         for i in range(7):
             if i == 5:
-                spacer = QWidget()
-                spacer.setFixedWidth(10)
-                tippfelder_layout.addWidget(spacer)
+                self.spacer = QWidget()
+                self.tippfelder_layout.addWidget(self.spacer)
             tippfelder = QLineEdit("")
             tippfelder.setValidator(QIntValidator(1, 99))
-            tippfelder.setMinimumSize(90, 90)
-            tippfelder.setMaximumSize(120, 120)
             tippfelder.setFont(QFont("Showcard Gothic", 36))
             tippfelder.setAlignment(Qt.AlignCenter)
             tippfelder.setStyleSheet("""
@@ -248,12 +250,17 @@ class Tipps_checken(QWidget):
                                         background-color: #262626;
                                         }
                                         """)
-            tippfelder_layout.addWidget(tippfelder)
+            self.tippfelder_layout.addWidget(tippfelder)
             self.tippeingabefeld.append(tippfelder)
+            
+        layout.addWidget(self.ueberschrift)
+        layout.addSpacing(40)
+        layout.addLayout(self.tippfelder_layout)
+        grid.addLayout(layout, 1, 0, alignment=Qt.AlignCenter)
 
         button_style_subsite2 = """
                                 QPushButton {
-                                    font-size: 19px;
+                                    font-size: 10pt;
                                     font-family: Tahoma;
                                     background-color: #000000;
                                     color: #FEDFA0;
@@ -275,20 +282,14 @@ class Tipps_checken(QWidget):
                                 }"""
         
         button_pruef = QPushButton("Tipp prüfen")
-        button_pruef.setMinimumSize(500, 60)
-        button_pruef.setMaximumSize(700, 80)
         button_pruef.setStyleSheet(button_style_subsite2)
         button_pruef.clicked.connect(self.get_pruef)
         
         button_pruef_leeren = QPushButton("Felder leeren")
-        button_pruef_leeren.setMinimumSize(300, 60)
-        button_pruef_leeren.setMaximumSize(500, 80)
         button_pruef_leeren.setStyleSheet(button_style_subsite2)
         button_pruef_leeren.clicked.connect(self.felder_leer)
 
         button_pruef_back = QPushButton("zurück zur Hauptseite")
-        button_pruef_back.setMinimumSize(500, 60)
-        button_pruef_back.setMaximumSize(700, 80)
         button_pruef_back.setStyleSheet(button_style_subsite2)
         button_pruef_back.clicked.connect(self.auto_leeren_bei_leave)
 
@@ -302,33 +303,39 @@ class Tipps_checken(QWidget):
         def remove_shadow(button):
             button.setGraphicsEffect(None)
 
-        buttons = [button_pruef, button_pruef_back, button_pruef_leeren]
+        self.buttons = [button_pruef, button_pruef_back, button_pruef_leeren]
 
-        for btn in buttons:
+        for btn in self.buttons:
             set_shadow(btn)
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
     
         buttonpruef_layout = QHBoxLayout()
         buttonpruef_layout.addWidget(button_pruef)
         buttonpruef_layout.addWidget(button_pruef_leeren)
         buttonpruef_layout.addWidget(button_pruef_back)
-
-        self.datumWidget = Datum()
-        self.datumWidget.setFixedHeight(200)
+        buttonpruef_layout.setSpacing(int(self.width() * 0.03))
         
-        # Layout der Seite
-        datum_layout = QVBoxLayout()
-        datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 26, 17, 150)
-        layout.addLayout(datum_layout)
-        layout.addWidget(self.ueberschrift)
-        layout.addSpacing(150)
-        layout.addLayout(tippfelder_layout)
-        layout.addSpacing(600)
-        layout.addLayout(buttonpruef_layout)
-        layout.addSpacerItem(QSpacerItem(0,100))
-        self.setLayout(layout)
+        footer = QWidget()
+        footer_layout = QVBoxLayout(footer)
+        footer_layout.addStretch(1)
+        footer_layout.addLayout(buttonpruef_layout)
+        footer_layout.setContentsMargins(0, 0, 0, 50)
+        footer.setMinimumHeight(int(self.height() * 0.08))
+        grid.addWidget(footer, 2, 0, alignment=Qt.AlignBottom)
+        
+    def resizeEvent(self, event):
+        h = self.height()
+        w = self.width()
+        for feld in self.tippeingabefeld:
+            feld.setFixedWidth(int(w * 0.07))
+            feld.setFixedHeight(int(h * 0.08))
+        for btn in self.buttons:
+            btn.setFixedHeight(int(h * 0.045))
+        self.tippfelder_layout.setSpacing(int(w * 0.04))
+        self.spacer.setFixedWidth(int(self.width() * 0.02))
+        super().resizeEvent(event)
 
     def felder_leer(self):
         for feld in self.tippeingabefeld:
@@ -338,6 +345,11 @@ class Tipps_checken(QWidget):
         for feld in self.tippeingabefeld:
             feld.clear()
         self.back_callback()
+    
+    def mousePressEvent(self, event):
+        if QApplication.focusWidget():
+            QApplication.focusWidget().clearFocus()
+        event.accept()
 
     def get_pruef(self):
         eingabe = " ".join(feld.text() for feld in self.tippeingabefeld)
@@ -365,6 +377,15 @@ class Glueckszahlen(QWidget):
         self.init_ui()
     
     def init_ui(self):
+        grid = QGridLayout(self)
+        grid.setRowStretch(0, 2)
+        grid.setRowStretch(1, 6)
+        grid.setRowStretch(2, 3)
+        
+        self.datumWidget = Datum()
+        grid.addWidget(self.datumWidget, 0, 0, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.datumWidget.setContentsMargins(0, 0, 10, 0)
+        
         layout = QVBoxLayout()
         self.ueberschrift = QLabel("Deine Glückszahlen lauten:")
         self.ueberschrift.setFont(QFont("Showcard Gothic", 30))
@@ -378,9 +399,14 @@ class Glueckszahlen(QWidget):
         shadow_glueck.setColor(QColor("#FEDFA052"))
         self.glueckszahlen.setGraphicsEffect(shadow_glueck)
         
+        layout.addWidget(self.ueberschrift)
+        layout.addSpacing(10)
+        layout.addWidget(self.glueckszahlen)
+        grid.addLayout(layout, 1, 0, alignment=Qt.AlignCenter)
+        
         button_style_subsite1 = """
                                 QPushButton {
-                                    font-size: 19px;
+                                    font-size: 10pt;
                                     font-family: Tahoma;
                                     background-color: #000000;
                                     color: #FEDFA0;
@@ -402,14 +428,10 @@ class Glueckszahlen(QWidget):
                                 }"""
         
         button_gluck1 = QPushButton("Glückszahlen generieren")
-        button_gluck1.setMinimumSize(500, 60)
-        button_gluck1.setMaximumSize(700, 80)
         button_gluck1.setStyleSheet(button_style_subsite1)
         button_gluck1.clicked.connect(self.zahlen_generieren)
         
         button_gluck1_back = QPushButton("zurück zur Hauptseite")
-        button_gluck1_back.setMinimumSize(500, 60)
-        button_gluck1_back.setMaximumSize(700, 80)
         button_gluck1_back.setStyleSheet(button_style_subsite1)
         button_gluck1_back.clicked.connect(self.back_callback)
         button_gluck1_back.clicked.connect(self.auto_leeren_bei_leave)
@@ -424,34 +446,32 @@ class Glueckszahlen(QWidget):
         def remove_shadow(button):
             button.setGraphicsEffect(None)
 
-        buttons = [button_gluck1, button_gluck1_back]
+        self.buttons = [button_gluck1, button_gluck1_back]
 
-        for btn in buttons:
+        for btn in self.buttons:
             set_shadow(btn)
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         buttonglueck_layout = QHBoxLayout()
         buttonglueck_layout.addWidget(button_gluck1)
         buttonglueck_layout.addWidget(button_gluck1_back)
-
-        self.datumWidget = Datum()
-        self.datumWidget.setFixedHeight(200)
+        buttonglueck_layout.setSpacing(int(self.width() * 0.03))
         
-        # Layout
-        datum_layout = QVBoxLayout()
-        datum_layout.addSpacing(200)
-        datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 27, 17, 500)
-        layout.addSpacing(60)
-        layout.addLayout(datum_layout)
-        layout.addWidget(self.ueberschrift)
-        layout.addSpacing(100)
-        layout.addWidget(self.glueckszahlen)
-        layout.addSpacing(400)
-        layout.addLayout(buttonglueck_layout)
-        layout.addSpacerItem(QSpacerItem(0,100))
-        self.setLayout(layout)
+        footer = QWidget()
+        footer_layout = QVBoxLayout(footer)
+        footer_layout.addStretch(1)
+        footer_layout.addLayout(buttonglueck_layout)
+        footer_layout.setContentsMargins(0, 0, 0, 50)
+        footer.setMinimumHeight(int(self.height() * 0.08))
+        grid.addWidget(footer, 2, 0, alignment=Qt.AlignBottom)
+    
+    def resizeEvent(self, event):
+        h = self.height()
+        for btn in self.buttons:
+            btn.setFixedHeight(int(h * 0.045))
+        super().resizeEvent(event)
 
     def auto_leeren_bei_leave(self):
         self.glueckszahlen.setText("")
@@ -460,6 +480,11 @@ class Glueckszahlen(QWidget):
     def zahlen_generieren(self):
         text = lottozahlen()
         self.glueckszahlen.setText(text)
+    
+    def mousePressEvent(self, event):
+        if QApplication.focusWidget():
+            QApplication.focusWidget().clearFocus()
+        event.accept()
 
 
 
@@ -475,14 +500,21 @@ class EurojackpotApp(QWidget):
         favicon = os.path.join(favicon_pfad, "backend", "images", "Eurojackpot.ico")
         self.setWindowIcon(QIcon(favicon))
         self.resize(width, height)
-        self.setMinimumSize(1536, 864)
-        self.setMaximumSize(3072, 1920)
+        self.setMinimumSize(1200, 800)
+        self.setMaximumSize(3840, 2400)
         self.move(screen_size.center().x() - self.width() // 2, screen_size.center().y() - self.height() // 2)
         self.stack = QStackedLayout()
+        self.setLayout(self.stack)
+        
         self.main = QWidget()
+        grid = QGridLayout(self.main)
+        grid.setRowStretch(0, 2)
+        grid.setRowStretch(1, 6)
+        grid.setRowStretch(2, 3)
         
         self.datumWidget = Datum()
-        self.datumWidget.setFixedHeight(200)
+        grid.addWidget(self.datumWidget, 0, 0, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.datumWidget.setContentsMargins(0, 0, 10, 0)
 
         title = QLabel("Eurojackpot")
         title.setFont(QFont("Showcard Gothic", 72))
@@ -492,10 +524,17 @@ class EurojackpotApp(QWidget):
         shadow.setOffset(2, 18)
         shadow.setColor(QColor("#FEDFA052"))
         title.setGraphicsEffect(shadow)
+        title_container = QWidget()
+        title_layout = QVBoxLayout(title_container)
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.addStretch(1)
+        title_layout.addWidget(title, alignment=Qt.AlignCenter)
+        title_layout.addStretch(1)
+        grid.addWidget(title_container, 1, 0)
 
         button_style_hauptseite = """
                                    QPushButton {
-                                       font-size: 19px;
+                                       font-size: 10pt;
                                        font-family: Tahoma;
                                        background-color: #000000;
                                        color: #FEDFA0;
@@ -517,20 +556,14 @@ class EurojackpotApp(QWidget):
                                     }"""
 
         button1 = QPushButton("Glückszahlen generieren")
-        button1.setMinimumSize(400, 60)
-        button1.setMaximumSize(600, 80)
         button1.setStyleSheet(button_style_hauptseite)
         button1.clicked.connect(self.show_glueckszahlen)
 
         button2 = QPushButton("Tippcheck")
-        button2.setMinimumSize(400, 60)
-        button2.setMaximumSize(600, 80)
         button2.setStyleSheet(button_style_hauptseite)
         button2.clicked.connect(self.show_tippeingabefeld)
 
         button3 = QPushButton("Jackpotzahlen hinzufügen")
-        button3.setMinimumSize(400, 60)
-        button3.setMaximumSize(600, 80)
         button3.setStyleSheet(button_style_hauptseite)
         button3.clicked.connect(self.show_addfeld)
         
@@ -544,34 +577,28 @@ class EurojackpotApp(QWidget):
         def remove_shadow(button):
             button.setGraphicsEffect(None)
 
-        buttons = [button1, button2, button3]
+        self.buttons = [button1, button2, button3]
 
-        for btn in buttons:
+        for btn in self.buttons:
             set_shadow(btn)
             btn.pressed.connect(lambda b=btn: remove_shadow(b))
             btn.released.connect(lambda b=btn: set_shadow(b))
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         button_layout = QHBoxLayout()
         button_layout.addWidget(button1)
         button_layout.addWidget(button2)
         button_layout.addWidget(button3)
-
-        # Layout
-        datum_layout = QVBoxLayout()
-        datum_layout.addStretch()
-        datum_layout.addWidget(self.datumWidget)
-        datum_layout.setContentsMargins(17, 28, 17, 500)
-        main_layout = QVBoxLayout()
-        main_layout.addSpacing(25)
-        main_layout.addLayout(datum_layout)
-        main_layout.addWidget(title)
-        main_layout.addSpacing(500)
-        main_layout.addLayout(button_layout)
-        main_layout.addSpacerItem(QSpacerItem(0,90))
-
-        fokus_flaeche = FreifeldKlickbar()
-        main_layout.addWidget(fokus_flaeche)
-        self.main.setLayout(main_layout)
+        button_layout.setSpacing(int(self.width() * 0.03))
+        
+        footer = QWidget()
+        footer_layout = QVBoxLayout(footer)
+        footer_layout.addStretch(1)
+        footer_layout.addLayout(button_layout)
+        footer_layout.setContentsMargins(0, 0, 0, 50)
+        footer.setMinimumHeight(int(self.height() * 0.08))
+        grid.addWidget(footer, 2, 0, alignment=Qt.AlignBottom)
+        
         self.addfeld = Zahlen_add(back_callback=self.show_main)
         self.tippeingabefeld = Tipps_checken(back_callback=self.show_main)
         self.glueckszahlen = Glueckszahlen(back_callback=self.show_main)
@@ -580,7 +607,17 @@ class EurojackpotApp(QWidget):
         self.stack.addWidget(self.addfeld)
         self.stack.addWidget(self.tippeingabefeld)
         self.stack.addWidget(self.glueckszahlen)
-        self.setLayout(self.stack)
+    
+    def resizeEvent(self, event):
+        h = self.height()
+        for btn in self.buttons:
+            btn.setFixedHeight(int(h * 0.045))
+        super().resizeEvent(event)
+    
+    def mousePressEvent(self, event):
+        if QApplication.focusWidget():
+            QApplication.focusWidget().clearFocus()
+        event.accept()
 
     def show_addfeld(self):
         self.stack.setCurrentWidget(self.addfeld)

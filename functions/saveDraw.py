@@ -57,4 +57,4 @@ def zahlen_eintragen(eintrag):
             return "✅ Lottozahlen hinzugefügt"
     
     except sqlite3.Error as e:
-        return f"❌ Fehler beim Zahlen eintragen: {e}"
+        return str(e)

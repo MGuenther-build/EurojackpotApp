@@ -52,5 +52,5 @@ def check_zahlen(mein_tipp):
                 if sorted(mein_tipp[:5]) == sorted(hauptzahlen) and sorted(mein_tipp[5:]) == sorted(zusatzzahlen):
                     return "❌ Wurden bereits gezogen!"
     except sqlite3.Error as e:
-        return f"🚨 Datenbankfehler: {e}"
+        return str(e)
     return "✅ Diese Zahlen sind ok!"

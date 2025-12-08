@@ -5,3 +5,7 @@ desktop.ini
 .vscode/*
 *.env
 logs
+dist/
+*.iss
+*.spec
+
