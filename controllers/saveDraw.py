@@ -1,38 +1,37 @@
-
 import sqlite3
 import re
-from backend.dbPath import db_pfad
+from backend.dbPath import db_path
 
 
-def zahlen_eintragen(eintrag):
+def add_draw(record):
     
-    if isinstance(eintrag, str):
-        eintrag = re.split(r"[,\s;]+", eintrag.strip())
+    if isinstance(record, str):
+        record = re.split(r"[,\s;]+", record.strip())
 
     try:
-        zahlen = [int(z) for z in eintrag]
+        nums = [int(z) for z in record]
     except ValueError:
         return "⚠️ Ungültige Eingabe! Bitte nur Zahlen eingeben!"
-    if len(zahlen) != 7:
+    if len(nums) != 7:
         return "⚠️ Ungültige Eingabe! Es müsssen 7 Zahlen sein!"
     
-    hauptzahlen = sorted(zahlen[:5])
-    zusatzzahlen = sorted(zahlen[5:])
-    zahlen = hauptzahlen + zusatzzahlen
+    main_numbers = sorted(nums[:5])
+    additional_numbers = sorted(nums[5:])
+    nums = main_numbers + additional_numbers
 
-    if not all(1 <= z <= 50 for z in hauptzahlen):
+    if not all(1 <= z <= 50 for z in main_numbers):
         return "⚠️ Fehler! Eine oder mehrere Hauptzahlen liegen außerhalb des Ziehungsbereichs."
-    if not all(1 <= z <= 12 for z in zusatzzahlen):
+    if not all(1 <= z <= 12 for z in additional_numbers):
         return "⚠️ Fehler! Eine oder mehrere Zusatzzahlen liegen außerhalb des Ziehungsbereichs."
-    if ((len(set(hauptzahlen)) != (len(hauptzahlen)) and (len(set(zusatzzahlen))) != len(zusatzzahlen))):
+    if ((len(set(main_numbers)) != (len(main_numbers)) and (len(set(additional_numbers))) != len(additional_numbers))):
         return "⚠️ Mindestens eine Hauptzahl und die Zusatzzahlen sind doppelt!"
-    elif len(set(hauptzahlen)) != len(hauptzahlen):
+    elif len(set(main_numbers)) != len(main_numbers):
         return "⚠️ Mindestens eine Hauptzahl ist doppelt!"
-    elif len(set(zusatzzahlen)) != len(zusatzzahlen):
+    elif len(set(additional_numbers)) != len(additional_numbers):
         return "⚠️ Die Zusatzzahlen sind doppelt!"
     
     try:
-        with sqlite3.connect(db_pfad()) as connection:
+        with sqlite3.connect(db_path()) as connection:
             cursor = connection.cursor()
             cursor.execute("""
                         SELECT COUNT(*) FROM Eurojackpot
@@ -43,7 +42,7 @@ def zahlen_eintragen(eintrag):
                                     "Hauptzahl 5" = ? AND
                                     "Zusatzzahl 1" = ? AND
                                     "Zusatzzahl 2" = ?
-                        """, tuple(zahlen))
+                        """, tuple(nums))
             
             if cursor.fetchone()[0] > 0:
                 return "⚠️ Lottozahlen bereits vorhanden!"
@@ -52,7 +51,7 @@ def zahlen_eintragen(eintrag):
             cursor.execute("""
                     INSERT INTO Eurojackpot ("Hauptzahl 1", "Hauptzahl 2", "Hauptzahl 3", "Hauptzahl 4", "Hauptzahl 5", "Zusatzzahl 1", "Zusatzzahl 2")
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, tuple(zahlen))
+                    """, tuple(nums))
             connection.commit()
             return "✅ Lottozahlen hinzugefügt"
     

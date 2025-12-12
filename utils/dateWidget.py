@@ -1,9 +1,10 @@
-
 from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QGraphicsDropShadowEffect
 from PyQt5.QtCore import QTimer, QDateTime, Qt
 from PyQt5.QtGui import QColor
 
-class Datum(QWidget):
+
+
+class DateWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         
